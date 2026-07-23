@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TIARG S.A. - Directorio Q1 2026</title>
+<style>
+  :root {
+    --green: #0c7a5f;
+    --green2: #0f766e;
+    --red: #b91c1c;
+    --ink: #0f172a;
+    --muted: #475569;
+    --line: #e2e8f0;
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --yellow: #ca8a04;
+    --blue: #1d4ed8;
+    --shadow: 0 4px 24px rgba(15, 23, 42, .10);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .deck { width: 100vw; height: 100vh; position: relative; }
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: none;
+    flex-direction: column;
+    padding: 48px 64px;
+    background: var(--bg);
+    overflow: hidden;
+  }
+  .slide.active { display: flex; }
+
+  .slide-cover {
+    background: linear-gradient(135deg, #0f172a 0%, #0c7a5f 100%);
+    color: #fff;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .slide-cover .eyebrow { font-size: 13px; letter-spacing: .12em; text-transform: uppercase; opacity: .7; }
+  .slide-cover h1 { font-size: 56px; font-weight: 800; line-height: 1.05; }
+  .slide-cover .subtitle { font-size: 22px; opacity: .88; margin-top: 8px; }
+  .slide-cover .date { font-size: 14px; opacity: .65; margin-top: 24px; }
+
+  .slide-header { margin-bottom: 24px; }
+  .slide-header .tag {
+    display: inline-block;
+    font-size: 11px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    background: var(--green);
+    color: #fff;
+    padding: 3px 10px;
+    border-radius: 999px;
+    margin-bottom: 8px;
+  }
+  .slide-header h2 { font-size: 30px; font-weight: 800; line-height: 1.1; }
+  .slide-header p { color: var(--muted); font-size: 14px; margin-top: 6px; }
+
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 18px;
+  }
+  .kpi-card {
+    background: var(--card);
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: var(--shadow);
+    border-top: 4px solid var(--green);
+  }
+  .kpi-card.blue { border-top-color: var(--blue); }
+  .kpi-card.yellow { border-top-color: var(--yellow); }
+  .kpi-card.red { border-top-color: var(--red); }
+  .kpi-card .label { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+  .kpi-card .value { font-size: 28px; font-weight: 800; margin-top: 8px; }
+  .kpi-card .sub { font-size: 12px; color: var(--muted); margin-top: 8px; line-height: 1.45; }
+
+  .panel {
+    background: var(--card);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    padding: 18px 20px;
+  }
+
+  .bar-row { display: grid; grid-template-columns: 180px 1fr 90px; gap: 10px; align-items: center; margin: 10px 0; }
+  .bar-label { font-size: 13px; font-weight: 600; }
+  .bar-track { height: 24px; background: #eef2f7; border-radius: 8px; overflow: hidden; }
+  .bar-fill { height: 100%; display: flex; align-items: center; padding: 0 10px; color: #fff; font-size: 12px; font-weight: 700; }
+  .bar-value { text-align: right; font-variant-numeric: tabular-nums; font-weight: 700; }
+
+  .two-col { display: grid; grid-template-columns: 1.3fr 1fr; gap: 22px; flex: 1; }
+
+  .insight-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 14px; }
+  .insight-box {
+    background: var(--card);
+    border-radius: 12px;
+    border-left: 4px solid var(--green);
+    box-shadow: var(--shadow);
+    padding: 14px 16px;
+  }
+  .insight-box.red { border-left-color: var(--red); }
+  .insight-box.yellow { border-left-color: var(--yellow); }
+  .insight-box strong { display: block; font-size: 13px; margin-bottom: 6px; }
+  .insight-box p { font-size: 12px; color: var(--muted); line-height: 1.45; }
+
+  .slide-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .slide-table th {
+    background: var(--ink);
+    color: #fff;
+    padding: 8px 10px;
+    text-align: left;
+    font-size: 11px;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+  }
+  .slide-table th:nth-child(2), .slide-table th:nth-child(3) { text-align: right; }
+  .slide-table td { padding: 8px 10px; border-bottom: 1px solid var(--line); }
+  .slide-table td:nth-child(2), .slide-table td:nth-child(3) { text-align: right; font-variant-numeric: tabular-nums; }
+  .kpi-row td { background: #edf7f3; font-weight: 800; }
+
+  .nav {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(15, 23, 42, .9);
+    border-radius: 999px;
+    padding: 8px 20px;
+    z-index: 10;
+  }
+  .nav button {
+    background: rgba(255, 255, 255, .12);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 6px 14px;
+    cursor: pointer;
+    font-size: 13px;
+  }
+  .nav button:disabled { opacity: .35; cursor: default; }
+  .counter { color: rgba(255, 255, 255, .75); font-size: 12px; min-width: 56px; text-align: center; }
+  .dots { display: flex; gap: 6px; }
+  .dot { width: 6px; height: 6px; border-radius: 99px; background: rgba(255, 255, 255, .35); }
+  .dot.active { width: 18px; background: #fff; }
+
+  .hint {
+    position: fixed;
+    top: 16px;
+    right: 20px;
+    font-size: 11px;
+    color: var(--muted);
+    background: var(--card);
+    padding: 4px 10px;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+  }
+</style>
+</head>
+<body>
+
+<div class="deck" id="deck">
+  <section class="slide slide-cover active" id="s0">
+    <div class="eyebrow">TIARG S.A. - Reunión de Directorio</div>
+    <h1>Q1 2026<br/>Avance Trimestral</h1>
+    <div class="subtitle">P&L real - negocio habitual y resultado reportado</div>
+    <div class="date">Abril 2026 - Confidencial</div>
+  </section>
+
+  <section class="slide" id="s1">
+    <div class="slide-header">
+      <span class="tag">Resumen ejecutivo</span>
+      <h2>Q1 2026: crecimiento comercial con margen bajo presión</h2>
+      <p>Lectura de cierre trimestral (enero-marzo)</p>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="label">Facturación Q1</div>
+        <div class="value">AR$ 387.6 MM</div>
+        <div class="sub">Subtotal Ingresos YTD</div>
+      </div>
+      <div class="kpi-card blue">
+        <div class="label">Margen Bruto</div>
+        <div class="value">AR$ 142.7 MM</div>
+        <div class="sub">36.8% sobre ventas</div>
+      </div>
+      <div class="kpi-card yellow">
+        <div class="label">EBITDA habitual</div>
+        <div class="value">AR$ 26.3 MM</div>
+        <div class="sub">6.8% sobre ventas</div>
+      </div>
+      <div class="kpi-card red">
+        <div class="label">Resultado neto reportado</div>
+        <div class="value" style="color:var(--red)">AR$ -227.6 MM</div>
+        <div class="sub">Afectado por servicios especiales</div>
+      </div>
+    </div>
+
+    <div class="insight-grid">
+      <div class="insight-box">
+        <strong>Comercialmente fuerte</strong>
+        <p>Ingresos acumulados de AR$ 387.6 MM en solo 3 meses, con marzo como mes más alto del trimestre.</p>
+      </div>
+      <div class="insight-box yellow">
+        <strong>Recuperación de rentabilidad en marzo</strong>
+        <p>Luego de enero y febrero en rojo, marzo aporta AR$ 92.0 MM y revierte la tendencia trimestral.</p>
+      </div>
+      <div class="insight-box red">
+        <strong>Brecha entre habitual y reportado</strong>
+        <p>El negocio habitual cierra positivo, pero el resultado consolidado queda negativo por impacto de especiales.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" id="s2">
+    <div class="slide-header">
+      <span class="tag">EBITDA mensual</span>
+      <h2>Inflexión en marzo</h2>
+      <p>EBITDA del negocio habitual por mes (AR$ MM)</p>
+    </div>
+
+    <div class="panel">
+      <div class="bar-row">
+        <div class="bar-label">Ene 2026</div>
+        <div class="bar-track"><div class="bar-fill" style="width:11%; background:var(--red);">-10.0</div></div>
+        <div class="bar-value" style="color:var(--red)">-10.0</div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">Feb 2026</div>
+        <div class="bar-track"><div class="bar-fill" style="width:60%; background:#991b1b;">-55.6</div></div>
+        <div class="bar-value" style="color:#991b1b">-55.6</div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">Mar 2026</div>
+        <div class="bar-track"><div class="bar-fill" style="width:100%; background:var(--green2);">+92.0</div></div>
+        <div class="bar-value" style="color:var(--green2)">+92.0</div>
+      </div>
+    </div>
+
+    <div class="insight-grid" style="margin-top:18px;">
+      <div class="insight-box red">
+        <strong>Inicio contractivo</strong>
+        <p>Enero y febrero combinan AR$ -65.6 MM de EBITDA habitual.</p>
+      </div>
+      <div class="insight-box">
+        <strong>Marzo compensa</strong>
+        <p>Marzo aporta AR$ +92.0 MM y deja el trimestre en AR$ +26.3 MM.</p>
+      </div>
+      <div class="insight-box yellow">
+        <strong>Foco Q2</strong>
+        <p>Sostener la disciplina de marzo en pricing, asignación y control de gasto operativo.</p>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:14px;">
+      <h3 style="font-size:13px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin-bottom:10px;">Centros de costo que apalancaron la mejora Feb → Mar (delta EBITDA habitual: +AR$ 147.5 MM)</h3>
+      <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:14px; font-size:13px;">
+        <div>
+          <div style="font-weight:700; margin-bottom:6px; color:var(--green2);">Principales aportes positivos</div>
+          <div style="color:var(--muted); line-height:1.6;">
+            Z_CORP: +AR$ 65.3 MM<br/>
+            PRD - GCBA: +AR$ 37.9 MM<br/>
+            APP IDECBA - GCBA: +AR$ 23.2 MM<br/>
+            ADES: +AR$ 9.6 MM<br/>
+            UTE Salta Autenticacion: +AR$ 8.0 MM
+          </div>
+        </div>
+        <div>
+          <div style="font-weight:700; margin-bottom:6px; color:var(--red);">Centros que compensaron parcialmente</div>
+          <div style="color:var(--muted); line-height:1.6;">
+            Trackeando: -AR$ 7.3 MM<br/>
+            PRISMA-PAYWAY: -AR$ 1.7 MM<br/>
+            SW Factory: -AR$ 1.0 MM<br/>
+            MyCryptoDreams: -AR$ 0.9 MM<br/>
+            Infraestructura: -AR$ 0.8 MM
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" id="s3">
+    <div class="slide-header">
+      <span class="tag">Composición comercial</span>
+      <h2>Alta concentración en 2 frentes</h2>
+      <p>Mix de facturación Q1 por Nivel 1 de dimensión (YTD)</p>
+    </div>
+
+    <div class="two-col">
+      <div class="panel">
+        <h3 style="font-size:13px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin-bottom:8px;">Participación sobre AR$ 387.6 MM</h3>
+        <div class="bar-row">
+          <div class="bar-label">01_STAFFING</div>
+          <div class="bar-track"><div class="bar-fill" style="width:61%; background:var(--green2);">61.4%</div></div>
+          <div class="bar-value">AR$ 238.2 MM</div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">03_SW FACTORY</div>
+          <div class="bar-track"><div class="bar-fill" style="width:32%; background:var(--blue);">31.5%</div></div>
+          <div class="bar-value">AR$ 122.2 MM</div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">04_SF Tercerizado</div>
+          <div class="bar-track"><div class="bar-fill" style="width:5%; background:var(--yellow);">5.3%</div></div>
+          <div class="bar-value">AR$ 20.6 MM</div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">Resto</div>
+          <div class="bar-track"><div class="bar-fill" style="width:2%; background:#64748b;">1.8%</div></div>
+          <div class="bar-value">AR$ 6.6 MM</div>
+        </div>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:14px;">
+        <div class="panel">
+          <h3 style="font-size:13px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin-bottom:10px;">Lectura directiva</h3>
+          <p style="font-size:13px; color:var(--muted); line-height:1.6;">
+            Staffing y SW Factory explican cerca del <strong>93%</strong> de la facturación trimestral.
+            La performance del trimestre depende de su volumen y su margen de ejecución.
+          </p>
+        </div>
+        <div class="panel" style="background:#f0f9ff;">
+          <h3 style="font-size:13px; text-transform:uppercase; letter-spacing:.08em; color:var(--blue); margin-bottom:10px;">Evolución mensual</h3>
+          <p style="font-size:13px; color:var(--muted); line-height:1.6;">
+            Enero AR$ 133.8 MM, febrero AR$ 100.1 MM y marzo AR$ 153.6 MM.
+            Marzo recupera ritmo comercial, especialmente en SW Factory.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" id="s4">
+    <div class="slide-header">
+      <span class="tag">EBITDA por BU</span>
+      <h2>Ganadores y focos de corrección</h2>
+      <p>EBITDA habitual Q1 2026 por unidad de negocio (AR$ MM)</p>
+    </div>
+
+    <div class="two-col">
+      <div class="panel">
+        <div class="bar-row"><div class="bar-label">01_STAFFING</div><div class="bar-track"><div class="bar-fill" style="width:100%; background:var(--green2);">+93.7</div></div><div class="bar-value" style="color:var(--green2)">+93.7</div></div>
+        <div class="bar-row"><div class="bar-label">10_ACRONIS</div><div class="bar-track"><div class="bar-fill" style="width:3%; background:var(--green);">+2.4</div></div><div class="bar-value" style="color:var(--green)">+2.4</div></div>
+        <div class="bar-row"><div class="bar-label">OTROS SERVICIOS</div><div class="bar-track"><div class="bar-fill" style="width:2%; background:var(--red);">-2.3</div></div><div class="bar-value" style="color:var(--red)">-2.3</div></div>
+        <div class="bar-row"><div class="bar-label">03_SW FACTORY</div><div class="bar-track"><div class="bar-fill" style="width:6%; background:var(--red);">-5.9</div></div><div class="bar-value" style="color:var(--red)">-5.9</div></div>
+        <div class="bar-row"><div class="bar-label">07_ESTRUCTURA</div><div class="bar-track"><div class="bar-fill" style="width:13%; background:#991b1b;">-12.7</div></div><div class="bar-value" style="color:#991b1b">-12.7</div></div>
+        <div class="bar-row"><div class="bar-label">04_SF Tercerizado</div><div class="bar-track"><div class="bar-fill" style="width:52%; background:#7f1d1d;">-48.3</div></div><div class="bar-value" style="color:#7f1d1d">-48.3</div></div>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:14px;">
+        <div class="panel" style="background:#f0fdf4;">
+          <h3 style="font-size:13px; text-transform:uppercase; letter-spacing:.08em; color:var(--green); margin-bottom:10px;">Motor de valor</h3>
+          <p style="font-size:13px; color:var(--muted); line-height:1.6;">STAFFING aporta +AR$ 93.7 MM y cubre holgadamente el saldo de varias unidades en negativo.</p>
+        </div>
+        <div class="panel" style="background:#fff7ed;">
+          <h3 style="font-size:13px; text-transform:uppercase; letter-spacing:.08em; color:var(--yellow); margin-bottom:10px;">Riesgo principal</h3>
+          <p style="font-size:13px; color:var(--muted); line-height:1.6;">04_SF Tercerizado cierra en -AR$ 48.3 MM. Requiere plan específico de pricing, mezcla y eficiencia.</p>
+        </div>
+        <div class="panel" style="background:#fff1f2;">
+          <h3 style="font-size:13px; text-transform:uppercase; letter-spacing:.08em; color:var(--red); margin-bottom:10px;">Disciplina operativa</h3>
+          <p style="font-size:13px; color:var(--muted); line-height:1.6;">SW Factory y Estructura muestran brecha negativa acumulada. Prioridad: productividad y asignación de capacidad.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" id="s5">
+    <div class="slide-header">
+      <span class="tag">Cierre y foco Q2</span>
+      <h2>La agenda: convertir recuperación de marzo en tendencia</h2>
+      <p>P&L Q1 2026 y prioridades de gestión</p>
+    </div>
+
+    <div class="two-col" style="grid-template-columns:1.2fr 1fr;">
+      <div class="panel" style="overflow:auto;">
+        <table class="slide-table">
+          <thead><tr><th>Línea</th><th>Q1 2026 (AR$)</th><th>% Ventas</th></tr></thead>
+          <tbody>
+            <tr><td>Subtotal Ingresos</td><td>387.584.662</td><td>100.0%</td></tr>
+            <tr><td>Subtotal Costo de Ventas</td><td style="color:var(--red)">-244.858.898</td><td style="color:var(--red)">-63.2%</td></tr>
+            <tr class="kpi-row"><td>Margen Bruto</td><td>142.725.765</td><td>36.8%</td></tr>
+            <tr><td>Subtotal Gastos Operativos</td><td style="color:var(--red)">-116.379.891</td><td style="color:var(--red)">-30.0%</td></tr>
+            <tr class="kpi-row"><td>EBITDA Negocio Habitual</td><td>26.345.874</td><td>6.8%</td></tr>
+            <tr><td>One-time + Financiero</td><td style="color:var(--red)">-7.856.449</td><td style="color:var(--red)">-2.0%</td></tr>
+            <tr><td>EBITDA Servicios Especiales</td><td style="color:var(--red)">-246.116.784</td><td style="color:var(--red)">-63.5%</td></tr>
+            <tr class="kpi-row"><td>Resultado Neto Reportado</td><td style="color:var(--red)">-227.627.359</td><td style="color:var(--red)">-58.7%</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:14px;">
+        <div class="panel">
+          <h3 style="font-size:13px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin-bottom:10px;">Plan de acción inmediato</h3>
+          <p style="font-size:13px; color:var(--muted); line-height:1.7;">
+            1. Defender el margen de marzo como piso operativo.<br/>
+            2. Ejecutar plan específico sobre 04_SF Tercerizado.<br/>
+            3. Mejorar asignación de estructura a unidades productivas.<br/>
+            4. Establecer seguimiento quincenal BU por BU.
+          </p>
+        </div>
+        <div class="panel" style="background:linear-gradient(135deg,#0c7a5f,#0f172a); color:#fff;">
+          <h3 style="font-size:13px; text-transform:uppercase; letter-spacing:.08em; margin-bottom:10px; color:#fff;">Mensaje de directorio</h3>
+          <p style="font-size:14px; line-height:1.7; opacity:.95;">
+            El core del negocio es rentable. La prioridad de Q2 es transformar el rebote de marzo en una trayectoria sostenida, con foco en ejecución y calidad de margen.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="hint">F / → para avanzar - ← para retroceder</div>
+
+<nav class="nav">
+  <button id="prev" onclick="go(-1)" disabled>← Anterior</button>
+  <div class="dots" id="dots"></div>
+  <span class="counter" id="counter">1 / 6</span>
+  <button id="next" onclick="go(1)">Siguiente →</button>
+</nav>
+
+<script>
+  const TOTAL = 6;
+  let cur = 0;
+
+  const dotsEl = document.getElementById("dots");
+  const counterEl = document.getElementById("counter");
+  const prevBtn = document.getElementById("prev");
+  const nextBtn = document.getElementById("next");
+
+  for (let i = 0; i < TOTAL; i++) {
+    const d = document.createElement("div");
+    d.className = "dot" + (i === 0 ? " active" : "");
+    d.onclick = () => goTo(i);
+    d.style.cursor = "pointer";
+    dotsEl.appendChild(d);
+  }
+
+  function goTo(n) {
+    document.getElementById("s" + cur).classList.remove("active");
+    cur = Math.max(0, Math.min(TOTAL - 1, n));
+    document.getElementById("s" + cur).classList.add("active");
+    document.querySelectorAll(".dot").forEach((d, i) => d.classList.toggle("active", i === cur));
+    counterEl.textContent = (cur + 1) + " / " + TOTAL;
+    prevBtn.disabled = cur === 0;
+    nextBtn.disabled = cur === TOTAL - 1;
+  }
+
+  function go(dir) { goTo(cur + dir); }
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowRight" || e.key === "f" || e.key === "F") go(1);
+    if (e.key === "ArrowLeft") go(-1);
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+{
+  "name": "dash-pl",
+  "private": true,
+  "scripts": {
+    "dev:api": "npm --prefix apps/api run dev",
+    "dev:web": "npm --prefix apps/web run dev",
+    "start:api": "npm --prefix apps/api run start",
+    "build:web": "npm --prefix apps/web run build"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s \"http://localhost:4000/api/executive-overview?year=2025&scope=ytd&level1=01_STAFFING\")",
+      "Bash(python3 -m json.tool)",
+      "Bash(npx tsc *)",
+      "Bash(node -e ' *)",
+      "Bash(curl -s \"http://localhost:4000/api/executive-overview?year=2026\")",
+      "Bash(python3 -c ' *)",
+      "Bash(curl -s \"http://localhost:4000/api/executive-overview?year=2025&periods=2025-12&cc=ADES\")"
+    ]
+  }
+}

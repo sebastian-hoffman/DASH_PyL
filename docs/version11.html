@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TIARG S.A. — Directorio 2025</title>
+<style>
+  :root {
+    --green:   #0c7a5f;
+    --green2:  #0f766e;
+    --red:     #c2410c;
+    --ink:     #0f172a;
+    --muted:   #475569;
+    --line:    #e2e8f0;
+    --bg:      #f8fafc;
+    --card:    #ffffff;
+    --yellow:  #ca8a04;
+    --blue:    #1d4ed8;
+    --shadow:  0 4px 24px rgba(15,23,42,.10);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* ── SHELL ── */
+  .deck { width: 100vw; height: 100vh; position: relative; }
+
+  .slide {
+    position: absolute; inset: 0;
+    display: none;
+    flex-direction: column;
+    padding: 48px 64px;
+    background: var(--bg);
+    overflow: hidden;
+  }
+  .slide.active { display: flex; }
+
+  /* ── COVER ── */
+  .slide-cover {
+    background: linear-gradient(135deg, #0f172a 0%, #0c7a5f 100%);
+    color: #fff;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .slide-cover .eyebrow { font-size: 13px; letter-spacing: .12em; text-transform: uppercase; opacity: .7; }
+  .slide-cover h1 { font-size: 56px; font-weight: 800; line-height: 1.05; }
+  .slide-cover .subtitle { font-size: 22px; opacity: .85; margin-top: 8px; }
+  .slide-cover .date { font-size: 14px; opacity: .6; margin-top: 24px; }
+  .cover-line { width: 60px; height: 4px; background: #0c7a5f; border-radius: 2px; margin: 16px 0; }
+
+  /* ── GENERAL SLIDE ELEMENTS ── */
+  .slide-header { margin-bottom: 28px; }
+  .slide-header .tag {
+    display: inline-block;
+    font-size: 11px; letter-spacing: .1em; text-transform: uppercase;
+    background: var(--green); color: #fff;
+    padding: 3px 10px; border-radius: 99px; margin-bottom: 8px;
+  }
+  .slide-header h2 { font-size: 30px; font-weight: 800; color: var(--ink); line-height: 1.1; }
+  .slide-header p { color: var(--muted); font-size: 14px; margin-top: 6px; }
+
+  /* ── KPI GRID ── */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .kpi-card {
+    background: var(--card);
+    border-radius: 14px;
+    padding: 20px 22px;
+    box-shadow: var(--shadow);
+    border-top: 4px solid var(--green);
+  }
+  .kpi-card.red { border-top-color: var(--red); }
+  .kpi-card.yellow { border-top-color: var(--yellow); }
+  .kpi-card.blue { border-top-color: var(--blue); }
+  .kpi-card .label { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 8px; }
+  .kpi-card .value { font-size: 26px; font-weight: 800; color: var(--ink); line-height: 1; }
+  .kpi-card .pct { font-size: 13px; margin-top: 6px; font-weight: 600; }
+  .kpi-card .pct.up { color: var(--green); }
+  .kpi-card .pct.down { color: var(--red); }
+  .kpi-card .sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  /* ── CHART BAR ── */
+  .bar-chart { display: flex; flex-direction: column; gap: 10px; }
+  .bar-row { display: flex; align-items: center; gap: 12px; }
+  .bar-label { font-size: 13px; font-weight: 600; width: 160px; flex-shrink: 0; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bar-track { flex: 1; background: #f1f5f9; border-radius: 6px; height: 28px; overflow: hidden; position: relative; }
+  .bar-fill { height: 100%; border-radius: 6px; transition: width .6s ease; display: flex; align-items: center; padding: 0 10px; }
+  .bar-fill span { font-size: 12px; font-weight: 700; color: #fff; white-space: nowrap; }
+  .bar-value { font-size: 13px; font-weight: 700; width: 110px; flex-shrink: 0; text-align: right; }
+
+  /* ── TREND CHART ── */
+  .trend-chart { width: 100%; }
+  .trend-chart svg { width: 100%; height: auto; }
+
+  /* ── TWO-COL LAYOUT ── */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; flex: 1; }
+  .col-card {
+    background: var(--card); border-radius: 14px; padding: 20px 24px;
+    box-shadow: var(--shadow);
+  }
+  .col-card h3 { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin-bottom: 14px; }
+
+  /* ── TABLE ── */
+  .slide-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .slide-table thead th {
+    background: var(--ink); color: #fff;
+    padding: 8px 12px; text-align: left; font-size: 11px;
+    letter-spacing: .07em; text-transform: uppercase;
+  }
+  .slide-table thead th:not(:first-child) { text-align: right; }
+  .slide-table tbody tr:nth-child(even) { background: #f8fafc; }
+  .slide-table tbody td { padding: 8px 12px; border-bottom: 1px solid var(--line); }
+  .slide-table tbody td:not(:first-child) { text-align: right; font-variant-numeric: tabular-nums; }
+  .slide-table tbody tr.kpi-row { background: #edf7f3 !important; font-weight: 800; }
+  .slide-table tbody tr.bad-row { background: #fff2ea !important; color: var(--red); }
+  .slide-table tbody tr.kpi-row td { font-weight: 800; }
+  .val-pos { color: var(--green); font-weight: 700; }
+  .val-neg { color: var(--red); font-weight: 700; }
+
+  /* ── INSIGHT BOX ── */
+  .insight-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: auto; }
+  .insight-box {
+    background: var(--card); border-radius: 12px; padding: 16px 18px;
+    border-left: 4px solid var(--green); box-shadow: var(--shadow);
+  }
+  .insight-box.red { border-left-color: var(--red); }
+  .insight-box.yellow { border-left-color: var(--yellow); }
+  .insight-box .icon { font-size: 20px; margin-bottom: 6px; }
+  .insight-box strong { font-size: 13px; display: block; margin-bottom: 4px; }
+  .insight-box p { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+  /* ── MOMENTUM ── */
+  .momentum-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
+  .mom-card {
+    background: var(--card); border-radius: 12px; padding: 16px;
+    box-shadow: var(--shadow); text-align: center;
+  }
+  .mom-card .month { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+  .mom-card .val { font-size: 22px; font-weight: 800; margin: 6px 0 4px; }
+  .mom-card .bar { height: 6px; border-radius: 3px; margin: 0 auto; }
+
+  /* ── CIERRE ── */
+  .slide-cierre {
+    background: linear-gradient(135deg, #0c7a5f 0%, #0f172a 100%);
+    color: #fff;
+    justify-content: center;
+  }
+  .slide-cierre h2 { font-size: 38px; font-weight: 800; margin-bottom: 32px; }
+  .takeaway-list { list-style: none; display: flex; flex-direction: column; gap: 14px; }
+  .takeaway-list li {
+    background: rgba(255,255,255,.1);
+    border-radius: 12px;
+    padding: 16px 22px;
+    font-size: 16px;
+    display: flex; gap: 14px; align-items: flex-start;
+  }
+  .takeaway-list li .num { font-size: 28px; font-weight: 800; opacity: .5; line-height: 1; }
+
+  /* ── NAV ── */
+  .nav {
+    position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%);
+    display: flex; align-items: center; gap: 12px;
+    background: rgba(15,23,42,.9); backdrop-filter: blur(8px);
+    border-radius: 99px; padding: 8px 20px;
+    z-index: 100;
+  }
+  .nav button {
+    background: rgba(255,255,255,.12); color: #fff; border: none;
+    border-radius: 8px; padding: 6px 16px; cursor: pointer; font-size: 13px; font-weight: 600;
+    transition: background .2s;
+  }
+  .nav button:hover { background: rgba(255,255,255,.22); }
+  .nav button:disabled { opacity: .35; cursor: default; }
+  .nav .counter { color: rgba(255,255,255,.7); font-size: 12px; min-width: 56px; text-align: center; }
+  .nav .dots { display: flex; gap: 6px; align-items: center; }
+  .nav .dot { width: 6px; height: 6px; border-radius: 99px; background: rgba(255,255,255,.35); transition: all .2s; }
+  .nav .dot.active { width: 18px; background: #fff; }
+
+  /* ── FULLSCREEN HINT ── */
+  .hint {
+    position: fixed; top: 16px; right: 20px;
+    font-size: 11px; color: var(--muted);
+    background: var(--card); padding: 4px 10px;
+    border-radius: 8px; box-shadow: var(--shadow);
+    opacity: .8;
+  }
+
+</style>
+</head>
+<body>
+
+<div class="deck" id="deck">
+
+  <!-- ══ SLIDE 0: COVER ══════════════════════════════════════════════════════ -->
+  <div class="slide slide-cover active" id="s0">
+    <div class="eyebrow">TIARG S.A. &nbsp;·&nbsp; Reunión de Directorio</div>
+    <div class="cover-line"></div>
+    <h1>Resultado 2025<br/>Cierre Anual</h1>
+    <div class="subtitle">P&amp;L real · Negocio habitual</div>
+    <div class="date">Abril 2026 &nbsp;·&nbsp; Confidencial</div>
+  </div>
+
+  <!-- ══ SLIDE 1: KPIs EJECUTIVOS ═══════════════════════════════════════════ -->
+  <div class="slide" id="s1">
+    <div class="slide-header">
+      <span class="tag">Apertura</span>
+      <h2>¿Cómo cerró el año?</h2>
+      <p>Acumulado anual 2025 — negocio habitual y ajustes de gestión</p>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="label">Facturación Total</div>
+        <div class="value">AR$ 1.960 MM</div>
+        <div class="pct up">Negocio habitual</div>
+        <div class="sub">Subtotal Ingresos YTD</div>
+      </div>
+      <div class="kpi-card blue">
+        <div class="label">Margen Bruto</div>
+        <div class="value">AR$ 611 MM</div>
+        <div class="pct up">31.2% s/ventas</div>
+        <div class="sub">Después de costos directos y RRHH</div>
+      </div>
+      <div class="kpi-card">
+        <div class="label">EBITDA Habitual</div>
+        <div class="value">AR$ 206 MM</div>
+        <div class="pct up">10.5% s/ventas</div>
+        <div class="sub">Antes de financiero y one-time</div>
+      </div>
+      <div class="kpi-card red">
+        <div class="label">Resultado Neto</div>
+        <div class="value" style="color:var(--green)">AR$ 173 MM</div>
+        <div class="pct up">Incluye financiero + one-time</div>
+        <div class="sub">Δ vs EBITDA: –AR$ 33 MM</div>
+      </div>
+    </div>
+
+    <div class="insight-grid">
+      <div class="insight-box">
+        <div class="icon">📌</div>
+        <strong>El negocio recurrente es rentable</strong>
+        <p>EBITDA habitual de AR$ 206 MM a 10.5% de margen. El negocio core genera caja.</p>
+      </div>
+      <div class="insight-box">
+        <div class="icon">⚠️</div>
+        <strong>El resultado neto se mantiene positivo</strong>
+        <p>La caída de AR$ 33 MM entre EBITDA y Resultado Neto está explicada por financiero y one-time.</p>
+      </div>
+      <div class="insight-box yellow">
+        <div class="icon">🔍</div>
+        <strong>Margen bruto al 31%</strong>
+        <p>El costo directo consume el 69% de la facturación. Referencia clave para comparar H1 vs H2.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SLIDE 2: EBITDA MENSUAL ════════════════════════════════════════════ -->
+  <div class="slide" id="s2">
+    <div class="slide-header">
+      <span class="tag">EBITDA mensual</span>
+      <h2>¿Fue un año estable?</h2>
+      <p>EBITDA del negocio habitual mes a mes</p>
+    </div>
+
+    <div style="flex:1; display:flex; flex-direction:column; gap:20px;">
+      <!-- SVG trend chart -->
+      <div class="trend-chart" style="flex:1; min-height:0;">
+        <svg viewBox="0 0 900 220" preserveAspectRatio="xMidYMid meet" style="overflow:visible">
+          <!-- grid lines -->
+          <line x1="60" y1="30" x2="870" y2="30" stroke="#e2e8f0" stroke-dasharray="4"/>
+          <line x1="60" y1="80" x2="870" y2="80" stroke="#e2e8f0" stroke-dasharray="4"/>
+          <line x1="60" y1="130" x2="870" y2="130" stroke="#e2e8f0" stroke-dasharray="4"/>
+          <line x1="60" y1="180" x2="870" y2="180" stroke="#e2e8f0" stroke-dasharray="4"/>
+          <!-- y labels -->
+          <text x="52" y="33" font-size="11" fill="#94a3b8" text-anchor="end">+350MM</text>
+          <text x="52" y="83" font-size="11" fill="#94a3b8" text-anchor="end">+150MM</text>
+          <text x="52" y="133" font-size="11" fill="#94a3b8" text-anchor="end">0</text>
+          <text x="52" y="183" font-size="11" fill="#94a3b8" text-anchor="end">-150MM</text>
+
+          <!-- zero line -->
+          <line x1="60" y1="130" x2="870" y2="130" stroke="#64748b" stroke-width="1.5"/>
+
+          <!-- bars: Ene=24.3, Feb=-38.4, Mar=-33.5, Abr=-63.4, May=-3.3, Jun=4.9, Jul=38.4, Ago=345, Sep=-131.5, Oct=25, Nov=-42.7, Dic=81 -->
+          <!-- scale: 0 → y=130, +350 → y=30, -150 → y=180. So 1MM = (100/350)=0.2857 px up from zero, or (50/150)=0.333px down -->
+          <!-- Let's use: y = 130 - (val / 350 * 100) for positive, or 130 + (|val| / 150 * 50) for negative -->
+          <!-- Actually let's just hardcode each bar position -->
+          <!-- x positions: 60 + i * 68, bar width = 44 -->
+
+          <!-- Ene 24.3MM positive -->
+          <rect x="68" y="123.06" width="44" height="6.94" fill="#0c7a5f" rx="3"/>
+          <text x="90" y="119" font-size="10" fill="#0c7a5f" text-anchor="middle" font-weight="700">+24</text>
+          <!-- Feb -38.4 negative -->
+          <rect x="136" y="130" width="44" height="12.8" fill="#c2410c" rx="3"/>
+          <text x="158" y="148" font-size="10" fill="#c2410c" text-anchor="middle" font-weight="700">-38</text>
+          <!-- Mar -33.5 -->
+          <rect x="204" y="130" width="44" height="11.17" fill="#c2410c" rx="3"/>
+          <text x="226" y="146" font-size="10" fill="#c2410c" text-anchor="middle" font-weight="700">-34</text>
+          <!-- Abr -63.4 -->
+          <rect x="272" y="130" width="44" height="21.1" fill="#c2410c" rx="3"/>
+          <text x="294" y="156" font-size="10" fill="#c2410c" text-anchor="middle" font-weight="700">-63</text>
+          <!-- May -3.3 -->
+          <rect x="340" y="130" width="44" height="1.1" fill="#c2410c" rx="3"/>
+          <text x="362" y="138" font-size="10" fill="#c2410c" text-anchor="middle" font-weight="700">-3</text>
+          <!-- Jun +4.9 -->
+          <rect x="408" y="128.6" width="44" height="1.4" fill="#0c7a5f" rx="3"/>
+          <text x="430" y="125" font-size="10" fill="#0c7a5f" text-anchor="middle" font-weight="700">+5</text>
+          <!-- Jul +38.4 -->
+          <rect x="476" y="119" width="44" height="11" fill="#0c7a5f" rx="3"/>
+          <text x="498" y="115" font-size="10" fill="#0c7a5f" text-anchor="middle" font-weight="700">+38</text>
+          <!-- Ago +345 → at scale 350=100px: 345/350*100=98.6 → y=130-98.6=31.4 -->
+          <rect x="544" y="31.4" width="44" height="98.6" fill="#0f766e" rx="3"/>
+          <text x="566" y="27" font-size="10" fill="#0f766e" text-anchor="middle" font-weight="700">+345</text>
+          <!-- Sep -131.5 → 131.5/150*50=43.8 → h=43.8 -->
+          <rect x="612" y="130" width="44" height="43.8" fill="#c2410c" rx="3"/>
+          <text x="634" y="180" font-size="10" fill="#c2410c" text-anchor="middle" font-weight="700">-132</text>
+          <!-- Oct +25 -->
+          <rect x="680" y="122.86" width="44" height="7.14" fill="#0c7a5f" rx="3"/>
+          <text x="702" y="119" font-size="10" fill="#0c7a5f" text-anchor="middle" font-weight="700">+25</text>
+          <!-- Nov -42.7 -->
+          <rect x="748" y="130" width="44" height="14.2" fill="#c2410c" rx="3"/>
+          <text x="770" y="150" font-size="10" fill="#c2410c" text-anchor="middle" font-weight="700">-43</text>
+          <!-- Dic +81 → 81/350*100=23.1 → y=106.9 -->
+          <rect x="816" y="106.9" width="44" height="23.1" fill="#0c7a5f" rx="3"/>
+          <text x="838" y="103" font-size="10" fill="#0c7a5f" text-anchor="middle" font-weight="700">+81</text>
+
+          <!-- X labels -->
+          <text x="90" y="200" font-size="11" fill="#64748b" text-anchor="middle">Ene</text>
+          <text x="158" y="200" font-size="11" fill="#64748b" text-anchor="middle">Feb</text>
+          <text x="226" y="200" font-size="11" fill="#64748b" text-anchor="middle">Mar</text>
+          <text x="294" y="200" font-size="11" fill="#64748b" text-anchor="middle">Abr</text>
+          <text x="362" y="200" font-size="11" fill="#64748b" text-anchor="middle">May</text>
+          <text x="430" y="200" font-size="11" fill="#64748b" text-anchor="middle">Jun</text>
+          <text x="498" y="200" font-size="11" fill="#64748b" text-anchor="middle">Jul</text>
+          <text x="566" y="200" font-size="11" fill="#64748b" text-anchor="middle">Ago</text>
+          <text x="634" y="200" font-size="11" fill="#64748b" text-anchor="middle">Sep</text>
+          <text x="702" y="200" font-size="11" fill="#64748b" text-anchor="middle">Oct</text>
+          <text x="770" y="200" font-size="11" fill="#64748b" text-anchor="middle">Nov</text>
+          <text x="838" y="200" font-size="11" fill="#64748b" text-anchor="middle">Dic</text>
+          <text x="56" y="203" font-size="10" fill="#94a3b8">AR$ MM</text>
+        </svg>
+      </div>
+
+      <div class="insight-grid">
+        <div class="insight-box red">
+          <div class="icon">📉</div>
+          <strong>H1 muy débil: Feb–Abr negativos</strong>
+          <p>Tres meses consecutivos en rojo (–38, –34, –63 MM). El trimestre más duro del año.</p>
+        </div>
+        <div class="insight-box">
+          <div class="icon">📈</div>
+          <strong>Agosto: pico de +345 MM</strong>
+          <p>Agosto concentra un resultado excepcional. Entender si es recurrente o puntual es clave para el forecast 2026.</p>
+        </div>
+        <div class="insight-box yellow">
+          <div class="icon">🔄</div>
+          <strong>Cierre de año: +81 MM en Dic</strong>
+          <p>Diciembre cierra en positivo luego de Noviembre negativo. Hay momentum de recuperación al entrar a 2026.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SLIDE 3: MIX POR BU ════════════════════════════════════════════════ -->
+  <div class="slide" id="s3">
+    <div class="slide-header">
+      <span class="tag">Composición</span>
+      <h2>¿De dónde viene la facturación?</h2>
+      <p>Facturación YTD 2025 por Nivel 1 de dimensión (AR$ MM)</p>
+    </div>
+
+    <div style="flex:1; display:flex; flex-direction:column; gap:16px;">
+      <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:14px;">
+        <div class="col-card" style="padding:18px 20px;">
+          <div style="font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted);">Total Ingresos YTD</div>
+          <div style="font-size:32px; font-weight:800; color:var(--green); margin-top:6px;">AR$ 1.960 MM</div>
+          <div style="font-size:12px; color:var(--muted); margin-top:6px;">7 unidades activas con facturación real</div>
+        </div>
+        <div class="col-card" style="padding:18px 20px;">
+          <div style="font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted);">Principal Motor</div>
+          <div style="font-size:28px; font-weight:800; color:var(--ink); margin-top:6px;">01_STAFFING</div>
+          <div style="font-size:13px; color:var(--muted); margin-top:6px;">AR$ 809 MM y 43% del total anual</div>
+        </div>
+        <div class="col-card" style="padding:18px 20px;">
+          <div style="font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted);">Concentración</div>
+          <div style="font-size:28px; font-weight:800; color:var(--blue); margin-top:6px;">84%</div>
+          <div style="font-size:13px; color:var(--muted); margin-top:6px;">Los 3 primeros BUs explican casi toda la facturación</div>
+        </div>
+      </div>
+
+      <div class="col-card" style="padding:18px 20px; flex:1; display:flex; flex-direction:column;">
+        <h3>Evolución mensual de facturación y mix por Dimensión Nivel 1</h3>
+        <svg viewBox="0 0 920 260" style="width:100%; height:auto; margin-top:8px; flex:1;">
+          <line x1="48" y1="18" x2="48" y2="222" stroke="#cbd5e1" />
+          <line x1="48" y1="222" x2="900" y2="222" stroke="#cbd5e1" />
+          <text x="40" y="24" font-size="10" fill="#94a3b8" text-anchor="end">450</text>
+          <text x="40" y="94" font-size="10" fill="#94a3b8" text-anchor="end">300</text>
+          <text x="40" y="158" font-size="10" fill="#94a3b8" text-anchor="end">150</text>
+          <text x="40" y="226" font-size="10" fill="#94a3b8" text-anchor="end">0</text>
+
+          <g>
+            <rect x="66"  y="188" width="42" height="34" fill="#0f766e" rx="3" /><rect x="66"  y="179" width="42" height="9" fill="#7c3aed" /><rect x="66"  y="178" width="42" height="1" fill="#94a3b8" />
+            <rect x="136" y="182" width="42" height="40" fill="#0f766e" rx="3" /><rect x="136" y="172" width="42" height="10" fill="#7c3aed" /><rect x="136" y="170" width="42" height="2" fill="#ca8a04" />
+            <rect x="206" y="180" width="42" height="42" fill="#0f766e" rx="3" /><rect x="206" y="168" width="42" height="12" fill="#7c3aed" /><rect x="206" y="166" width="42" height="2" fill="#ca8a04" />
+            <rect x="276" y="184" width="42" height="38" fill="#0f766e" rx="3" /><rect x="276" y="177" width="42" height="7" fill="#7c3aed" /><rect x="276" y="171" width="42" height="6" fill="#ca8a04" />
+            <rect x="346" y="176" width="42" height="46" fill="#0f766e" rx="3" /><rect x="346" y="159" width="42" height="17" fill="#7c3aed" /><rect x="346" y="158" width="42" height="1" fill="#1d4ed8" />
+            <rect x="416" y="175" width="42" height="47" fill="#0f766e" rx="3" /><rect x="416" y="158" width="42" height="17" fill="#7c3aed" /><rect x="416" y="143" width="42" height="15" fill="#ca8a04" />
+            <rect x="486" y="115" width="42" height="107" fill="#0f766e" rx="3" /><rect x="486" y="75" width="42" height="40" fill="#1d4ed8" /><rect x="486" y="59" width="42" height="16" fill="#7c3aed" />
+            <rect x="556" y="180" width="42" height="42" fill="#0f766e" rx="3" /><rect x="556" y="122" width="42" height="58" fill="#1d4ed8" /><rect x="556" y="105" width="42" height="17" fill="#7c3aed" /><rect x="556" y="89" width="42" height="16" fill="#ca8a04" />
+            <rect x="626" y="160" width="42" height="62" fill="#0f766e" rx="3" /><rect x="626" y="152" width="42" height="8" fill="#1d4ed8" /><rect x="626" y="114" width="42" height="38" fill="#7c3aed" />
+            <rect x="696" y="151" width="42" height="71" fill="#0f766e" rx="3" /><rect x="696" y="143" width="42" height="8" fill="#1d4ed8" /><rect x="696" y="115" width="42" height="28" fill="#7c3aed" /><rect x="696" y="106" width="42" height="9" fill="#ca8a04" />
+            <rect x="766" y="167" width="42" height="55" fill="#0f766e" rx="3" /><rect x="766" y="159" width="42" height="8" fill="#1d4ed8" /><rect x="766" y="150" width="42" height="9" fill="#7c3aed" /><rect x="766" y="139" width="42" height="11" fill="#ca8a04" />
+            <rect x="836" y="168" width="42" height="54" fill="#0f766e" rx="3" /><rect x="836" y="167" width="42" height="1" fill="#1d4ed8" /><rect x="836" y="138" width="42" height="29" fill="#7c3aed" /><rect x="836" y="57" width="42" height="81" fill="#ca8a04" />
+          </g>
+
+          <g fill="#64748b" font-size="11" text-anchor="middle">
+            <text x="87" y="244">Ene</text><text x="157" y="244">Feb</text><text x="227" y="244">Mar</text><text x="297" y="244">Abr</text>
+            <text x="367" y="244">May</text><text x="437" y="244">Jun</text><text x="507" y="244">Jul</text><text x="577" y="244">Ago</text>
+            <text x="647" y="244">Sep</text><text x="717" y="244">Oct</text><text x="787" y="244">Nov</text><text x="857" y="244">Dic</text>
+          </g>
+        </svg>
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; margin-top:8px;">
+          <div style="display:flex; gap:12px; font-size:11px; color:var(--muted); flex-wrap:wrap;">
+            <span><span style="display:inline-block; width:9px; height:9px; background:#0f766e; border-radius:2px; margin-right:4px;"></span>01_STAFFING</span>
+            <span><span style="display:inline-block; width:9px; height:9px; background:#1d4ed8; border-radius:2px; margin-right:4px;"></span>OTROS SERVICIOS</span>
+            <span><span style="display:inline-block; width:9px; height:9px; background:#7c3aed; border-radius:2px; margin-right:4px;"></span>03_SW FACTORY</span>
+            <span><span style="display:inline-block; width:9px; height:9px; background:#ca8a04; border-radius:2px; margin-right:4px;"></span>04_SF Tercerizado</span>
+          </div>
+          <div style="font-size:11px; color:var(--muted);">Jul-Ago acelera OTROS SERVICIOS; Dic cierra con mayor peso de SF Tercerizado.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SLIDE 4: EBITDA POR BU ═════════════════════════════════════════════ -->
+  <div class="slide" id="s4">
+    <div class="slide-header">
+      <span class="tag">EBITDA por BU</span>
+      <h2>¿Quién genera valor y quién lo consume?</h2>
+      <p>EBITDA YTD 2025 por unidad de negocio — negocio habitual (AR$ MM)</p>
+    </div>
+
+    <div style="flex:1; display:grid; grid-template-columns:1.4fr 1fr; gap:24px;">
+      <div class="col-card">
+        <h3>EBITDA por BU — Ranking</h3>
+        <div class="bar-chart" style="margin-top:8px;">
+          <!-- 01_STAFFING +272 (max scale 280) -->
+          <div class="bar-row">
+            <div class="bar-label">01_STAFFING</div>
+            <div class="bar-track">
+              <div class="bar-fill" style="width:97%; background:var(--green);"><span>+272 MM</span></div>
+            </div>
+            <div class="bar-value val-pos">+272</div>
+          </div>
+          <!-- OTROS SERVICIOS +158 -->
+          <div class="bar-row">
+            <div class="bar-label">OTROS SERVICIOS</div>
+            <div class="bar-track">
+              <div class="bar-fill" style="width:56%; background:var(--blue);"><span>+158 MM</span></div>
+            </div>
+            <div class="bar-value val-pos">+158</div>
+          </div>
+          <!-- 04_SF Tercerizado +84 -->
+          <div class="bar-row">
+            <div class="bar-label">04_SF Tercerizado</div>
+            <div class="bar-track">
+              <div class="bar-fill" style="width:30%; background:var(--yellow);"><span>+84 MM</span></div>
+            </div>
+            <div class="bar-value val-pos">+84</div>
+          </div>
+          <!-- 10_ACRONIS +15 -->
+          <div class="bar-row">
+            <div class="bar-label">10_ACRONIS</div>
+            <div class="bar-track">
+              <div class="bar-fill" style="width:5.4%; background:#64748b;"><span></span></div>
+            </div>
+            <div class="bar-value val-pos">+15</div>
+          </div>
+          <!-- 05_SOPORTE -1 -->
+          <div class="bar-row">
+            <div class="bar-label">05_SOPORTE</div>
+            <div class="bar-track">
+              <div class="bar-fill" style="width:0.7%; background:#f1a37a;"><span></span></div>
+            </div>
+            <div class="bar-value val-neg">–1</div>
+          </div>
+          <!-- 08_IMPUESTOS -20 -->
+          <div class="bar-row">
+            <div class="bar-label">08_IMPUESTOS</div>
+            <div class="bar-track">
+              <div class="bar-fill" style="width:7.3%; background:var(--red);"><span></span></div>
+            </div>
+            <div class="bar-value val-neg">–20</div>
+          </div>
+          <!-- 03_SW FACTORY -44 -->
+          <div class="bar-row">
+            <div class="bar-label" style="color:var(--red);">03_SW FACTORY</div>
+            <div class="bar-track">
+              <div class="bar-fill" style="width:15.9%; background:var(--red);"><span>–44 MM</span></div>
+            </div>
+            <div class="bar-value val-neg">–44</div>
+          </div>
+          <!-- 07_ESTRUCTURA -257 -->
+          <div class="bar-row">
+            <div class="bar-label" style="color:#991b1b; font-weight:800;">07_ESTRUCTURA</div>
+            <div class="bar-track">
+              <div class="bar-fill" style="width:91.8%; background:#991b1b;"><span>–257 MM</span></div>
+            </div>
+            <div class="bar-value" style="color:#991b1b; font-weight:800;">–257</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:14px;">
+        <div class="col-card" style="background:#f0fdf4;">
+          <h3 style="color:var(--green);">Generadores (+530 MM)</h3>
+          <p style="font-size:13px; color:var(--muted); line-height:1.7;">
+            <strong>STAFFING +272</strong> sostiene el resultado.<br/>
+            OTROS SERVICIOS +158 y SF Tercerizado +84 aportan margen.<br/>
+            Estos tres BUs cubren el costo de estructura.
+          </p>
+        </div>
+        <div class="col-card" style="background:#fff5f5;">
+          <h3 style="color:#991b1b;">07_ESTRUCTURA: –257 MM</h3>
+          <p style="font-size:13px; color:var(--muted); line-height:1.7;">
+            Es el principal factor de compresión del EBITDA reportado.<br/>
+            <strong style="color:#991b1b;">Incluye sueldos de directores e impuestos</strong>, con alta dedicación operativa/comercial no imputada a proyectos.<br/>
+            Reasignar parte del tiempo productivo mejora la lectura del margen por unidad.
+          </p>
+        </div>
+        <div class="col-card" style="background:#fff5f5;">
+          <h3 style="color:var(--red);">03_SW FACTORY: –44 MM</h3>
+          <p style="font-size:13px; color:var(--muted); line-height:1.7;">
+            Durante 2025 se tomaron medidas de productividad y pricing.<br/>
+            Ya se observan mejoras operativas en la segunda mitad del año.<br/>
+            El objetivo 2026 es consolidar esa tendencia hacia mayor rentabilidad.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SLIDE 5: P&L COMPLETO ══════════════════════════════════════════════ -->
+  <div class="slide" id="s5">
+    <div class="slide-header">
+      <span class="tag">Estado de Resultados</span>
+      <h2>¿Dónde está la oportunidad de rentabilidad?</h2>
+      <p>P&L estructurado YTD 2025 — negocio habitual</p>
+    </div>
+
+    <div style="flex:1; display:grid; grid-template-columns:1.2fr 1fr; gap:24px;">
+      <div style="overflow:auto;">
+        <table class="slide-table">
+          <thead>
+            <tr>
+              <th>Línea</th>
+              <th style="text-align:right;">YTD 2025 (AR$)</th>
+              <th style="text-align:right;">% Ventas</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td style="padding-left:8px; color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.05em;" colspan="3">Ingresos</td></tr>
+            <tr><td style="padding-left:20px;">Ventas</td><td>1.901.328.855</td><td class="val-pos">97.0%</td></tr>
+            <tr><td style="padding-left:20px;">Ingresos Diferidos + Otros</td><td>58.356.452</td><td class="val-pos">3.0%</td></tr>
+            <tr class="kpi-row"><td>Subtotal Ingresos</td><td>1.959.685.307</td><td class="val-pos">100%</td></tr>
+            <tr><td style="padding-left:8px; color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.05em;" colspan="3">Costo de Ventas</td></tr>
+            <tr><td style="padding-left:20px;">RRHH Directo + Costos Directos</td><td style="color:var(--red);">–1.232.700.000</td><td class="val-neg">–62.9%</td></tr>
+            <tr><td style="padding-left:20px;">Diferencia de Cambio Op.</td><td style="color:var(--red);">–115.811.853</td><td class="val-neg">–5.9%</td></tr>
+            <tr class="kpi-row"><td>Margen Bruto</td><td style="color:var(--green);">611.173.454</td><td class="val-pos">31.2%</td></tr>
+            <tr><td style="padding-left:8px; color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.05em;" colspan="3">Gastos Operativos</td></tr>
+            <tr><td style="padding-left:20px;">RRHH Estructura + Gastos</td><td style="color:var(--red);">–405.315.898</td><td class="val-neg">–20.7%</td></tr>
+            <tr class="kpi-row"><td>EBITDA Negocio Habitual</td><td style="color:var(--green);">205.857.556</td><td class="val-pos">10.5%</td></tr>
+            <tr><td style="padding-left:20px; color:var(--red);">One-time + Financiero</td><td style="color:var(--red);">–32.956.228</td><td class="val-neg">–1.7%</td></tr>
+            <tr class="kpi-row"><td>Resultado Neto</td><td style="color:var(--green);">172.901.328</td><td class="val-pos">8.8%</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:14px;">
+        <div class="col-card">
+          <h3>¿Dónde está la oportunidad?</h3>
+          <p style="font-size:13px; color:var(--muted); line-height:1.6; margin-top:6px; margin-bottom:10px;">
+            Con margen bruto del <strong>31%</strong> y EBITDA habitual de <strong>10.5%</strong>, TIARG ya tiene base rentable.
+            La oportunidad está en aumentar volumen y productividad sobre estructura existente, priorizando mix y ejecución antes de expandir costos fijos.
+          </p>
+          <div style="display:flex; flex-direction:column; gap:10px; margin-top:6px;">
+            <div style="display:flex; gap:10px; align-items:center;">
+              <div style="width:12px; height:12px; border-radius:3px; background:var(--green); flex-shrink:0;"></div>
+              <div style="font-size:13px;"><strong>Activar plan de capacidad por BU</strong><br/><span style="color:var(--muted); font-size:12px;">Utilización, backlog y asignación para convertir horas disponibles en ingresos de mayor margen.</span></div>
+            </div>
+            <div style="display:flex; gap:10px; align-items:center;">
+              <div style="width:12px; height:12px; border-radius:3px; background:var(--yellow); flex-shrink:0;"></div>
+              <div style="font-size:13px;"><strong>Seguimiento con mirada crítica</strong><br/><span style="color:var(--muted); font-size:12px;">Continuar con mirada crítica y especial atención a la evolución del modelo de negocio para sostener crecimiento rentable.</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-card" style="background:#fff5f5;">
+          <h3 style="color:var(--red);">Diferencia de Cambio</h3>
+          <p style="font-size:13px; color:var(--muted); line-height:1.6;">
+            La diferencia de cambio responde al negocio de <strong>ICBC</strong>.<br/>
+            Es un componente <strong>100% operativo</strong> dentro de un frente rentable.<br/>
+            Se monitorea como variable de ejecución, no como alerta estructural.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SLIDE 6: MOMENTUM Q4 ═══════════════════════════════════════════════ -->
+</div><!-- /deck -->
+
+<div class="hint">F / → para avanzar &nbsp;·&nbsp; ← para retroceder &nbsp;·&nbsp; F11 pantalla completa</div>
+
+<nav class="nav">
+  <button id="prev" onclick="go(-1)" disabled>← Anterior</button>
+  <div class="dots" id="dots"></div>
+  <span class="counter" id="counter">1 / 6</span>
+  <button id="next" onclick="go(1)">Siguiente →</button>
+</nav>
+
+<script>
+  const TOTAL = 6;
+  let cur = 0;
+
+  const dotsEl   = document.getElementById('dots');
+  const counterEl = document.getElementById('counter');
+  const prevBtn  = document.getElementById('prev');
+  const nextBtn  = document.getElementById('next');
+
+  // build dots
+  for (let i = 0; i < TOTAL; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.onclick = () => goTo(i);
+    d.style.cursor = 'pointer';
+    dotsEl.appendChild(d);
+  }
+
+  function goTo(n) {
+    document.getElementById('s' + cur).classList.remove('active');
+    cur = Math.max(0, Math.min(TOTAL - 1, n));
+    document.getElementById('s' + cur).classList.add('active');
+    document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === cur));
+    counterEl.textContent = (cur + 1) + ' / ' + TOTAL;
+    prevBtn.disabled = cur === 0;
+    nextBtn.disabled = cur === TOTAL - 1;
+  }
+
+  function go(dir) { goTo(cur + dir); }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === 'f' || e.key === 'F') go(1);
+    if (e.key === 'ArrowLeft')  go(-1);
+  });
+</script>
+</body>
+</html>

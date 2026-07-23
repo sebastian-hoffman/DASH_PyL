@@ -1,0 +1,19 @@
+[
+  {
+    "id": "jadj-1777241122291",
+    "kind": "reclassification",
+    "amount": 3700000,
+    "debit": {
+      "account": "Honorarios Proyectos",
+      "costCenter": "PRD - GCBA",
+      "period": "2025-11"
+    },
+    "credit": {
+      "account": "Gastos Legales - Notaria",
+      "costCenter": "Servicios Especiales",
+      "period": "2025-11"
+    },
+    "note": "reclasificacion gasto a prd",
+    "createdAt": "2026-04-26T22:05:22.291Z"
+  }
+]
