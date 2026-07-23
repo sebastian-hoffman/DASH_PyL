@@ -1652,7 +1652,7 @@ function App() {
           ) : null}
 
           {activeTab === "importaciones" ? (
-            <ImportHistory apiBase="" />
+            <ImportHistory apiBase={apiBase} />
           ) : null}
         </div>
 
@@ -1671,7 +1671,7 @@ function App() {
             setActiveTab("importaciones");
             // Could refresh import history here if needed
           }}
-          apiBase=""
+          apiBase={apiBase}
         />
       </main>
     </div>
