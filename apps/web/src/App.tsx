@@ -13,6 +13,8 @@ import {
 } from "recharts";
 import { VisionEjecutivaTab, type ExecutiveOverview } from "./tabs/VisionEjecutivaTab";
 import { FileUploadModal } from "./components/FileUploadModal";
+import { DataImportModal } from "./components/DataImportModal";
+import { ImportHistory } from "./components/ImportHistory";
 
 type Kpi = { title: string; value: number; deltaPct: number };
 type ChartPoint = { month: string; habitual: number };
@@ -153,9 +155,10 @@ const RevenueTooltip = ({ active, payload, label }: {
 };
 
 function App() {
-  const [activeTab, setActiveTab] = useState<"dashboard" | "vision-ejecutiva" | "analisis" | "cc-explorer">("dashboard");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "vision-ejecutiva" | "analisis" | "cc-explorer" | "importaciones">("dashboard");
   const [year, setYear] = useState<"2025" | "2026">("2025");
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [savedAdjustments, setSavedAdjustments] = useState<SavedAdjustment[]>([]);
   const [kpis, setKpis] = useState<Kpi[]>([]);
   const [chart, setChart] = useState<ChartPoint[]>([]);
@@ -821,6 +824,13 @@ function App() {
         >
           Explorador CC
         </button>
+        <button
+          type="button"
+          className={activeTab === "importaciones" ? "side-link active" : "side-link"}
+          onClick={() => setActiveTab("importaciones")}
+        >
+          📊 Importaciones
+        </button>
 
         <div style={{ marginTop: 18, paddingTop: 14, borderTop: "1px solid rgba(148, 163, 184, 0.35)", fontSize: 12, lineHeight: 1.45 }}>
           <p className="eyebrow" style={{ marginBottom: 8 }}>Archivos Input</p>
@@ -840,7 +850,7 @@ function App() {
             <div>
               <p className="eyebrow">TIARG S.A. | CFO Workspace</p>
               <h1>Profit & Loss</h1>
-              <p className="small">Vista activa: {activeTab === "dashboard" ? "Dashboard" : activeTab === "vision-ejecutiva" ? "Visión Ejecutiva" : activeTab === "analisis" ? "Analisis P&L" : "Explorador CC"}</p>
+              <p className="small">Vista activa: {activeTab === "dashboard" ? "Dashboard" : activeTab === "vision-ejecutiva" ? "Visión Ejecutiva" : activeTab === "analisis" ? "Analisis P&L" : activeTab === "cc-explorer" ? "Explorador CC" : "Importaciones"}</p>
             </div>
             <div className="controls">
               <label className="control-field control-field--year">
@@ -901,6 +911,15 @@ function App() {
                 title="Subir nuevo archivo Excel"
               >
                 ↑ Subir archivo
+              </button>
+              <button
+                type="button"
+                className="btn-upload"
+                onClick={() => setIsImportModalOpen(true)}
+                title="Importar datos P&L desde Excel"
+                style={{ background: "linear-gradient(135deg, rgba(59, 130, 246, 0.5), rgba(99, 102, 241, 0.5))" }}
+              >
+                ⬇ Importar datos
               </button>
             </div>
           </header>
@@ -1631,6 +1650,10 @@ function App() {
               )}
             </section>
           ) : null}
+
+          {activeTab === "importaciones" ? (
+            <ImportHistory apiBase="" />
+          ) : null}
         </div>
 
         <FileUploadModal
@@ -1639,6 +1662,16 @@ function App() {
           onSuccess={() => {
             // Could refresh file metadata here if needed
           }}
+        />
+
+        <DataImportModal
+          isOpen={isImportModalOpen}
+          onClose={() => setIsImportModalOpen(false)}
+          onSuccess={() => {
+            setActiveTab("importaciones");
+            // Could refresh import history here if needed
+          }}
+          apiBase=""
         />
       </main>
     </div>
