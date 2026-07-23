@@ -1,12 +1,13 @@
 import cors from "cors";
 import express from "express";
 import adjustmentsRouter from "./routes/adjustments.js";
-import commentsRouter      from "./routes/comments.js";
+import commentsRouter    from "./routes/comments.js";
 import drilldownRouter   from "./routes/drilldown.js";
 import executiveRouter   from "./routes/executive.js";
 import explorerRouter    from "./routes/explorer.js";
 import filesRouter       from "./routes/files.js";
 import healthRouter      from "./routes/health.js";
+import importRouter      from "./routes/import.js";
 import overviewRouter    from "./routes/overview.js";
 import periodsRouter     from "./routes/periods.js";
 import pnlRouter         from "./routes/pnl.js";
@@ -29,6 +30,7 @@ app.use("/api", adjustmentsRouter);
 app.use("/api", explorerRouter);
 app.use("/api", drilldownRouter);
 app.use("/api", filesRouter);
+app.use("/api", importRouter);
 app.use("/api", commentsRouter);
 
 export default app;

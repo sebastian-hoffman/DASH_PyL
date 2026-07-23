@@ -5,6 +5,33 @@ export const runMigrations = async (pool: Pool): Promise<void> => {
   try {
     console.log("🔄 Running migrations...");
 
+    // Create pnl_data table (core P&L data)
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS pnl_data (
+        id SERIAL PRIMARY KEY,
+        period VARCHAR(10) NOT NULL,
+        quarter VARCHAR(5),
+        account VARCHAR(255) NOT NULL,
+        cost_center VARCHAR(255),
+        cc_level1 VARCHAR(255),
+        cc_level2 VARCHAR(255),
+        level2 VARCHAR(255),
+        level3 VARCHAR(255),
+        amount NUMERIC(15,2) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(period, account, cost_center, cc_level1, cc_level2, level2, level3)
+      );
+    `);
+
+    // Create index for faster queries
+    await client.query(`
+      CREATE INDEX IF NOT EXISTS idx_pnl_period ON pnl_data(period);
+    `);
+    await client.query(`
+      CREATE INDEX IF NOT EXISTS idx_pnl_account ON pnl_data(account);
+    `);
+
     // Create file_metadata table
     await client.query(`
       CREATE TABLE IF NOT EXISTS file_metadata (
@@ -15,10 +42,14 @@ export const runMigrations = async (pool: Pool): Promise<void> => {
         uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         uploaded_by VARCHAR(255),
         changelog_notes TEXT,
+        rows_previous INTEGER,
+        rows_imported INTEGER,
+        periods_affected TEXT[],
+        summary JSONB,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
-    `);
+    `)
 
     // Create comments table (associated with files)
     await client.query(`

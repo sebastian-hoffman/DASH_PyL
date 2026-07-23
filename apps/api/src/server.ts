@@ -2,6 +2,7 @@ import app from "./app.js";
 import { port } from "./config/index.js";
 import { initPool } from "./db/init.js";
 import { runMigrations } from "./db/migrations.js";
+import { loadAllSourceRows } from "./data/loader.js";
 
 const startServer = async () => {
   try {
@@ -11,6 +12,11 @@ const startServer = async () => {
       if (pool) {
         await runMigrations(pool);
         console.log("✅ Database initialized");
+        
+        // Load PNL data into cache
+        console.log("📖 Loading PNL data from database...");
+        await loadAllSourceRows();
+        console.log("✅ PNL data loaded");
       }
     }
 
