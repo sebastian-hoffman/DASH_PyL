@@ -811,6 +811,7 @@ function App() {
         >
           Analisis P&L
         </button>
+        {/* DISABLED: Ajustes tab
         <button
           type="button"
           className={activeTab === "ajustes" ? "side-link active" : "side-link"}
@@ -818,6 +819,7 @@ function App() {
         >
           Ajustes
         </button>
+        */}
         <button
           type="button"
           className={activeTab === "cc-explorer" ? "side-link active" : "side-link"}
@@ -1417,7 +1419,8 @@ function App() {
             </>
           ) : null}
 
-          {activeTab === "ajustes" ? (
+          {/* DISABLED: Ajustes panel */}
+          {false && activeTab === "ajustes" ? (
             <>
               <article className="adjust-card">
                 <h2>Ajuste de gestión</h2>

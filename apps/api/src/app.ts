@@ -4,6 +4,7 @@ import adjustmentsRouter from "./routes/adjustments.js";
 import drilldownRouter   from "./routes/drilldown.js";
 import executiveRouter   from "./routes/executive.js";
 import explorerRouter    from "./routes/explorer.js";
+import filesRouter       from "./routes/files.js";
 import healthRouter      from "./routes/health.js";
 import overviewRouter    from "./routes/overview.js";
 import periodsRouter     from "./routes/periods.js";
@@ -26,5 +27,6 @@ app.use("/api", periodsRouter);
 app.use("/api", adjustmentsRouter);
 app.use("/api", explorerRouter);
 app.use("/api", drilldownRouter);
+app.use("/api", filesRouter);
 
 export default app;
