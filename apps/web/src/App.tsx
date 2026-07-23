@@ -12,6 +12,7 @@ import {
   YAxis
 } from "recharts";
 import { VisionEjecutivaTab, type ExecutiveOverview } from "./tabs/VisionEjecutivaTab";
+import { FileUploadModal } from "./components/FileUploadModal";
 
 type Kpi = { title: string; value: number; deltaPct: number };
 type ChartPoint = { month: string; habitual: number };
@@ -154,6 +155,7 @@ const RevenueTooltip = ({ active, payload, label }: {
 function App() {
   const [activeTab, setActiveTab] = useState<"dashboard" | "vision-ejecutiva" | "analisis" | "cc-explorer">("dashboard");
   const [year, setYear] = useState<"2025" | "2026">("2025");
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [savedAdjustments, setSavedAdjustments] = useState<SavedAdjustment[]>([]);
   const [kpis, setKpis] = useState<Kpi[]>([]);
   const [chart, setChart] = useState<ChartPoint[]>([]);
@@ -892,6 +894,14 @@ function App() {
                 <input type="checkbox" checked={showEspeciales} onChange={(e) => setShowEspeciales(e.target.checked)} />
                 Servicios Especiales
               </label>
+              <button
+                type="button"
+                className="btn-upload"
+                onClick={() => setIsUploadModalOpen(true)}
+                title="Subir nuevo archivo Excel"
+              >
+                ↑ Subir archivo
+              </button>
             </div>
           </header>
 
@@ -1622,6 +1632,14 @@ function App() {
             </section>
           ) : null}
         </div>
+
+        <FileUploadModal
+          isOpen={isUploadModalOpen}
+          onClose={() => setIsUploadModalOpen(false)}
+          onSuccess={() => {
+            // Could refresh file metadata here if needed
+          }}
+        />
       </main>
     </div>
   );
