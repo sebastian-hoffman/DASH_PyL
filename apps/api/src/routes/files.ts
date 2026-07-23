@@ -24,8 +24,14 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage,
   fileFilter: (req, file, cb) => {
-    if (file.mimetype === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
-        file.mimetype === "application/vnd.ms-excel") {
+    // Allow Excel files and common spreadsheet formats
+    const allowedMimes = [
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "application/vnd.ms-excel",
+      "application/octet-stream",
+      "text/plain"
+    ];
+    if (allowedMimes.includes(file.mimetype) || file.originalname.endsWith('.xlsx') || file.originalname.endsWith('.xls')) {
       cb(null, true);
     } else {
       cb(new Error("Only Excel files (.xlsx, .xls) are allowed"));
@@ -33,7 +39,7 @@ const upload = multer({
   },
 });
 
-router.get("/file-meta", async (req, res) => {
+router.get("/files/meta", async (req, res) => {
   const pool = getPool();
   if (!pool) {
     return res.json({
@@ -59,7 +65,7 @@ router.get("/file-meta", async (req, res) => {
   }
 });
 
-router.get("/files-history", async (req, res) => {
+router.get("/files/history", async (req, res) => {
   const pool = getPool();
   if (!pool) {
     return res.json([]);
@@ -76,7 +82,7 @@ router.get("/files-history", async (req, res) => {
   }
 });
 
-router.post("/upload", upload.single("file"), async (req, res) => {
+router.post("/files/upload", upload.single("file"), async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ error: "No file provided" });
   }

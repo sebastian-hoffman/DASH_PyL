@@ -20,6 +20,18 @@ export const runMigrations = async (pool: Pool): Promise<void> => {
       );
     `);
 
+    // Create comments table (associated with files)
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS comments (
+        id SERIAL PRIMARY KEY,
+        file_id INTEGER REFERENCES file_metadata(id) ON DELETE CASCADE,
+        author VARCHAR(255) NOT NULL DEFAULT 'anonymous',
+        content TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
     // Ensure there's at least one record
     const count = await client.query("SELECT COUNT(*) FROM file_metadata");
     if (count.rows[0].count === "0") {

@@ -1,6 +1,7 @@
 import cors from "cors";
 import express from "express";
 import adjustmentsRouter from "./routes/adjustments.js";
+import commentsRouter      from "./routes/comments.js";
 import drilldownRouter   from "./routes/drilldown.js";
 import executiveRouter   from "./routes/executive.js";
 import explorerRouter    from "./routes/explorer.js";
@@ -28,5 +29,6 @@ app.use("/api", adjustmentsRouter);
 app.use("/api", explorerRouter);
 app.use("/api", drilldownRouter);
 app.use("/api", filesRouter);
+app.use("/api", commentsRouter);
 
 export default app;
