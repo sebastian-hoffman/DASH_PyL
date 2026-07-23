@@ -141,30 +141,30 @@ const seedPnlData = async () => {
     }
     console.log(`\n✅ Inserted ${inserted} rows`);
 
-      // 4. Save initial file metadata (if file_metadata table exists)
-      const periods = [...new Set(allRows.map((r) => r.period))].sort();
-      try {
-        await client.query(
-          `INSERT INTO file_metadata 
-           (filename, uploaded_by, changelog_notes, rows_previous, rows_imported, periods_affected, summary)
-           VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-          [
-            "initial-seed.xlsx",
-            "system",
-            "Initial data load from Excel files",
-            0,
-            inserted,
-            periods,
-            JSON.stringify({ anterior: { total_filas: 0, periodos: [] }, nuevo: { total_filas: inserted, periodos } }),
-          ]
-        );
-      } catch {
-        // file_metadata table may not exist yet, that's OK
-      }
+    // 4. Save initial file metadata (if file_metadata table exists)
+    const periods = [...new Set(allRows.map((r) => r.period))].sort();
+    try {
+      await client.query(
+        `INSERT INTO file_metadata 
+         (filename, uploaded_by, changelog_notes, rows_previous, rows_imported, periods_affected, summary)
+         VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+        [
+          "initial-seed.xlsx",
+          "system",
+          "Initial data load from Excel files",
+          0,
+          inserted,
+          periods,
+          JSON.stringify({ anterior: { total_filas: 0, periodos: [] }, nuevo: { total_filas: inserted, periodos } }),
+        ]
+      );
+    } catch {
+      // file_metadata table may not exist yet, that's OK
+    }
 
-      console.log(`✅ Seed completed:`);
-      console.log(`   - Inserted: ${inserted} rows`);
-      console.log(`   - Periods: ${periods.join(", ")}`);
+    console.log(`✅ Seed completed:`);
+    console.log(`   - Inserted: ${inserted} rows`);
+    console.log(`   - Periods: ${periods.join(", ")}`);
   } catch (err) {
     console.error("❌ Seed failed:", err);
     process.exit(1);

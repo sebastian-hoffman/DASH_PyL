@@ -6,6 +6,6 @@
     "dev:web": "npm --prefix apps/web run dev",
     "start:api": "npm --prefix apps/api run start",
     "build:web": "npm --prefix apps/web run build",
-    "build": "npm install --prefix apps/web && npm --prefix apps/web run build"
+    "build": "npm install --prefix apps/web && npm install --prefix apps/api && npm --prefix apps/web run build"
   }
 }
