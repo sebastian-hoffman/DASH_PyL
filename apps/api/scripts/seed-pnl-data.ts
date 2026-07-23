@@ -65,10 +65,34 @@ const seedPnlData = async () => {
   const client = await pool.connect();
 
   try {
+    console.log("🔄 Running migrations...");
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS pnl_data (
+        id SERIAL PRIMARY KEY,
+        period VARCHAR(10) NOT NULL,
+        quarter VARCHAR(20),
+        account VARCHAR(255) NOT NULL,
+        cost_center VARCHAR(255),
+        cc_level1 VARCHAR(255),
+        cc_level2 VARCHAR(255),
+        level2 VARCHAR(255),
+        level3 VARCHAR(255),
+        amount NUMERIC(15,2) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(period, account, cost_center, cc_level1, cc_level2, level2, level3)
+      );
+    `);
+    // Expand quarter column in case table existed with smaller size
+    await client.query(`ALTER TABLE pnl_data ALTER COLUMN quarter TYPE VARCHAR(20);`);
+    await client.query(`CREATE INDEX IF NOT EXISTS idx_pnl_period ON pnl_data(period);`);
+    await client.query(`CREATE INDEX IF NOT EXISTS idx_pnl_account ON pnl_data(account);`);
+    console.log("✅ Tables ready");
+
     console.log("🌱 Seeding PNL data...");
 
     // 1. Parse all Excel files
-    const projectRoot = path.resolve(__dirname, "../../../..");
+    const projectRoot = path.resolve(__dirname, "../../..");
     const pnlPath2025 = path.join(projectRoot, "Perdidas y ganancias.xlsx");
     const pnlPath2026 = path.join(projectRoot, "PyG_2026_06.xlsx");
 
@@ -87,90 +111,60 @@ const seedPnlData = async () => {
       process.exit(1);
     }
 
-    // 2. Start transaction
-    await client.query("BEGIN");
+    // 2. Clear existing data and insert all fresh
+    console.log("🗑️  Clearing existing data...");
+    await client.query("DELETE FROM pnl_data");
 
-    try {
-      // Check if data already exists
-      const existing = await client.query("SELECT COUNT(*) as count FROM pnl_data");
-      const existingCount = parseInt(existing.rows[0].count || "0");
-
-      if (existingCount > 0) {
-        console.log(`⚠️  Found ${existingCount} existing rows. Clearing...`);
-        await client.query("DELETE FROM pnl_data");
-      }
-
-      // 3. Insert all data
-      console.log(`💾 Inserting ${allRows.length} rows...`);
-      let inserted = 0;
-      let skipped = 0;
-
-      for (const row of allRows) {
-        try {
-          await client.query(
-            `INSERT INTO pnl_data 
-             (period, quarter, account, cost_center, cc_level1, cc_level2, level2, level3, amount)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-             ON CONFLICT DO NOTHING`,
-            [
-              row.period,
-              row.quarter,
-              row.account,
-              row.costCenter,
-              row.ccLevel1,
-              row.ccLevel2,
-              row.level2,
-              row.level3,
-              row.amount,
-            ]
-          );
-          inserted++;
-        } catch (err) {
-          skipped++;
-          if (skipped <= 5) {
-            console.error(`   Row error: ${err instanceof Error ? err.message : String(err)}`);
-          }
-        }
-      }
-
-      // 4. Save initial file metadata
-      const periods = [...new Set(allRows.map((r) => r.period))].sort();
-      const summary = {
-        anterior: { total_filas: 0, periodos: [] },
-        nuevo: { total_filas: inserted, periodos },
-        cambios: {
-          filas_nuevas: inserted,
-          periodos_agregados: periods,
-          periodos_actualizados: [],
-          periodos_removidos: [],
-        },
-      };
-
+    // 3. Insert all data in batches (no individual try/catch to avoid aborted transactions)
+    console.log(`💾 Inserting ${allRows.length} rows...`);
+    let inserted = 0;
+    
+    // Insert in batches of 100 to avoid huge single queries
+    const BATCH_SIZE = 100;
+    for (let i = 0; i < allRows.length; i += BATCH_SIZE) {
+      const batch = allRows.slice(i, i + BATCH_SIZE);
+      const values: unknown[] = [];
+      const placeholders = batch.map((row, j) => {
+        const offset = j * 9;
+        values.push(row.period, row.quarter, row.account, row.costCenter, row.ccLevel1, row.ccLevel2, row.level2, row.level3, row.amount);
+        return `($${offset+1},$${offset+2},$${offset+3},$${offset+4},$${offset+5},$${offset+6},$${offset+7},$${offset+8},$${offset+9})`;
+      }).join(",");
+      
       await client.query(
-        `INSERT INTO file_metadata 
-         (filename, uploaded_by, changelog_notes, rows_previous, rows_imported, periods_affected, summary)
-         VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-        [
-          "initial-seed.xlsx",
-          "system",
-          "Initial data load from Excel files",
-          0,
-          inserted,
-          periods,
-          JSON.stringify(summary),
-        ]
+        `INSERT INTO pnl_data (period, quarter, account, cost_center, cc_level1, cc_level2, level2, level3, amount)
+         VALUES ${placeholders}
+         ON CONFLICT DO NOTHING`,
+        values
       );
+      inserted += batch.length;
+      process.stdout.write(`   Progress: ${inserted}/${allRows.length}\r`);
+    }
+    console.log(`\n✅ Inserted ${inserted} rows`);
 
-      await client.query("COMMIT");
+      // 4. Save initial file metadata (if file_metadata table exists)
+      const periods = [...new Set(allRows.map((r) => r.period))].sort();
+      try {
+        await client.query(
+          `INSERT INTO file_metadata 
+           (filename, uploaded_by, changelog_notes, rows_previous, rows_imported, periods_affected, summary)
+           VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+          [
+            "initial-seed.xlsx",
+            "system",
+            "Initial data load from Excel files",
+            0,
+            inserted,
+            periods,
+            JSON.stringify({ anterior: { total_filas: 0, periodos: [] }, nuevo: { total_filas: inserted, periodos } }),
+          ]
+        );
+      } catch {
+        // file_metadata table may not exist yet, that's OK
+      }
 
       console.log(`✅ Seed completed:`);
       console.log(`   - Inserted: ${inserted} rows`);
-      console.log(`   - Skipped: ${skipped} rows`);
       console.log(`   - Periods: ${periods.join(", ")}`);
-    } catch (err) {
-      await client.query("ROLLBACK");
-      throw err;
-    }
   } catch (err) {
     console.error("❌ Seed failed:", err);
     process.exit(1);

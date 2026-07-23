@@ -10,7 +10,7 @@ export const runMigrations = async (pool: Pool): Promise<void> => {
       CREATE TABLE IF NOT EXISTS pnl_data (
         id SERIAL PRIMARY KEY,
         period VARCHAR(10) NOT NULL,
-        quarter VARCHAR(5),
+        quarter VARCHAR(20),
         account VARCHAR(255) NOT NULL,
         cost_center VARCHAR(255),
         cc_level1 VARCHAR(255),
