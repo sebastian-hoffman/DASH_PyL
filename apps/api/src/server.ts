@@ -12,13 +12,13 @@ const startServer = async () => {
       if (pool) {
         await runMigrations(pool);
         console.log("✅ Database initialized");
-        
-        // Load PNL data into cache
-        console.log("📖 Loading PNL data from database...");
-        await loadAllSourceRows();
-        console.log("✅ PNL data loaded");
       }
     }
+
+    // Load PNL data into cache (must complete before starting server)
+    console.log("📖 Loading PNL data...");
+    await loadAllSourceRows();
+    console.log("✅ PNL data loaded - server ready");
 
     app.listen(port, () => {
       console.log(`DASH PL API running on http://localhost:${port}`);

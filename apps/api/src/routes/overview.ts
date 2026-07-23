@@ -27,12 +27,19 @@ const formatMonthLabel = (period: string) => {
 const buildOverviewChart = (source: SourcePnlRow[]) => {
   const periods = [...new Set(source.map((row) => row.period))].filter(Boolean).sort();
 
+  // Pre-filter by period for efficiency (don't iterate all 2817 rows for each period)
+  const rowsByPeriod = new Map<string, SourcePnlRow[]>();
+  for (const row of source) {
+    const p = row.period;
+    if (!rowsByPeriod.has(p)) rowsByPeriod.set(p, []);
+    rowsByPeriod.get(p)!.push(row);
+  }
+
   return periods.map((period) => {
     let habitual = 0;
+    const periodRows = rowsByPeriod.get(period) || [];
 
-    for (const row of source) {
-      if (row.period !== period) continue;
-
+    for (const row of periodRows) {
       if (isSpecialRow(row)) continue;
 
       const isVentas = row.level2.startsWith("1. Ingresos")
@@ -84,6 +91,14 @@ const buildRevenueChart = (allSource: SourcePnlRow[]) => {
   const periods = [...new Set(source.map((row) => row.period))].filter(Boolean).sort();
   const totalsByDimension = new Map<string, number>();
 
+  // Pre-filter by period for efficiency
+  const rowsByPeriod = new Map<string, SourcePnlRow[]>();
+  for (const row of source) {
+    const p = row.period;
+    if (!rowsByPeriod.has(p)) rowsByPeriod.set(p, []);
+    rowsByPeriod.get(p)!.push(row);
+  }
+
   for (const row of source) {
     const dimension = row.ccLevel1 || "Sin Nivel 1";
     totalsByDimension.set(dimension, (totalsByDimension.get(dimension) ?? 0) + row.amount);
@@ -108,14 +123,17 @@ const buildRevenueChart = (allSource: SourcePnlRow[]) => {
     chartRows.set(period, point);
   }
 
-  for (const row of source) {
-    const point = chartRows.get(row.period);
+  for (const period of periods) {
+    const periodRows = rowsByPeriod.get(period) || [];
+    const point = chartRows.get(period);
     if (!point) continue;
 
-    const dimension = row.ccLevel1 || "Sin Nivel 1";
-    const bucket = overflowDimensions.has(dimension) ? "Otros" : dimension;
-    point[bucket] = Number(point[bucket] ?? 0) + row.amount;
-    point.total += row.amount;
+    for (const row of periodRows) {
+      const dimension = row.ccLevel1 || "Sin Nivel 1";
+      const bucket = overflowDimensions.has(dimension) ? "Otros" : dimension;
+      point[bucket] = Number(point[bucket] ?? 0) + row.amount;
+      point.total += row.amount;
+    }
   }
 
   return {
