@@ -1443,7 +1443,7 @@ function App() {
           ) : null}
 
           {/* DISABLED: Ajustes panel */}
-          {false && activeTab === "ajustes" ? (
+          {false ? (
             <>
               <article className="adjust-card">
                 <h2>Ajuste de gestión</h2>

@@ -416,7 +416,7 @@ export function VisionEjecutivaTab({ data, loading, availableCostCenters, select
                     strokeWidth={step.name === "EBITDA" ? 2 : undefined}
                   />
                 ))}
-                <LabelList dataKey="delta" content={renderStepLabel} />
+                <LabelList dataKey="delta" content={renderStepLabel as any} />
               </Bar>
             </BarChart>
           </ResponsiveContainer>
