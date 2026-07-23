@@ -12,7 +12,6 @@ import {
   YAxis
 } from "recharts";
 import { VisionEjecutivaTab, type ExecutiveOverview } from "./tabs/VisionEjecutivaTab";
-import { FileUploadModal } from "./components/FileUploadModal";
 import { DataImportModal } from "./components/DataImportModal";
 import { ImportHistory } from "./components/ImportHistory";
 
@@ -157,7 +156,6 @@ const RevenueTooltip = ({ active, payload, label }: {
 function App() {
   const [activeTab, setActiveTab] = useState<"dashboard" | "vision-ejecutiva" | "analisis" | "cc-explorer" | "importaciones">("dashboard");
   const [year, setYear] = useState<"2025" | "2026">("2025");
-  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [savedAdjustments, setSavedAdjustments] = useState<SavedAdjustment[]>([]);
   const [kpis, setKpis] = useState<Kpi[]>([]);
@@ -907,7 +905,7 @@ function App() {
               <button
                 type="button"
                 className="btn-upload"
-                onClick={() => setIsUploadModalOpen(true)}
+                onClick={() => setIsImportModalOpen(true)}
                 title="Subir nuevo archivo Excel"
               >
                 ↑ Subir archivo
@@ -1655,14 +1653,6 @@ function App() {
             <ImportHistory apiBase={apiBase} />
           ) : null}
         </div>
-
-        <FileUploadModal
-          isOpen={isUploadModalOpen}
-          onClose={() => setIsUploadModalOpen(false)}
-          onSuccess={() => {
-            // Could refresh file metadata here if needed
-          }}
-        />
 
         <DataImportModal
           isOpen={isImportModalOpen}
