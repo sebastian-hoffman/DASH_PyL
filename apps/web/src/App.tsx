@@ -152,7 +152,7 @@ const RevenueTooltip = ({ active, payload, label }: {
 };
 
 function App() {
-  const [activeTab, setActiveTab] = useState<"dashboard" | "vision-ejecutiva" | "analisis" | "ajustes" | "cc-explorer">("dashboard");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "vision-ejecutiva" | "analisis" | "cc-explorer">("dashboard");
   const [year, setYear] = useState<"2025" | "2026">("2025");
   const [savedAdjustments, setSavedAdjustments] = useState<SavedAdjustment[]>([]);
   const [kpis, setKpis] = useState<Kpi[]>([]);
@@ -361,12 +361,12 @@ function App() {
     setAdjCreditPeriod(adjustment.credit.period);
     setAdjNote(adjustment.note);
     setAdjMsg(`Editando ajuste del ${new Date(adjustment.createdAt).toLocaleDateString("es-AR")}.`);
-    setActiveTab("ajustes");
+    // setActiveTab("ajustes"); // DISABLED
   };
 
-  useEffect(() => {
-    if (activeTab === "ajustes") loadSavedAdjustments();
-  }, [activeTab]);
+  // DISABLED: useEffect(() => {
+  //   if (activeTab === "ajustes") loadSavedAdjustments();
+  // }, [activeTab]);
 
   // Load breakdown
   useEffect(() => {
@@ -811,15 +811,7 @@ function App() {
         >
           Analisis P&L
         </button>
-        {/* DISABLED: Ajustes tab
-        <button
-          type="button"
-          className={activeTab === "ajustes" ? "side-link active" : "side-link"}
-          onClick={() => setActiveTab("ajustes")}
-        >
-          Ajustes
-        </button>
-        */}
+        {/* DISABLED: Ajustes tab (feature disabled for Phase 1) */}
         <button
           type="button"
           className={activeTab === "cc-explorer" ? "side-link active" : "side-link"}
@@ -846,7 +838,7 @@ function App() {
             <div>
               <p className="eyebrow">TIARG S.A. | CFO Workspace</p>
               <h1>Profit & Loss</h1>
-              <p className="small">Vista activa: {activeTab === "dashboard" ? "Dashboard" : activeTab === "vision-ejecutiva" ? "Visión Ejecutiva" : activeTab === "analisis" ? "Analisis P&L" : activeTab === "ajustes" ? "Ajustes" : "Explorador CC"}</p>
+              <p className="small">Vista activa: {activeTab === "dashboard" ? "Dashboard" : activeTab === "vision-ejecutiva" ? "Visión Ejecutiva" : activeTab === "analisis" ? "Analisis P&L" : "Explorador CC"}</p>
             </div>
             <div className="controls">
               <label className="control-field control-field--year">
@@ -1070,15 +1062,17 @@ function App() {
                   {showQuarterColumn ? <td>{fmtCurrency(r.quarter)}</td> : null}
                   <td>{fmtCurrency(r.ytd)}</td>
                   <td>
+                    {/* DISABLED: Ajustar button (ajustes feature disabled)
                     {drillableRow(r) ? (
                       <button
                         type="button"
                         className="btn-sm"
-                        onClick={() => { setAdjLineId(r.id); setAdjLineLabel(r.label); setAdjMsg(""); setActiveTab("ajustes"); }}
+                        onClick={() => { setAdjLineId(r.id); setAdjLineLabel(r.label); setAdjMsg(""); }}
                       >
                         Ajustar
                       </button>
                     ) : null}
+                    */}
                   </td>
                 </tr>
               ))}
